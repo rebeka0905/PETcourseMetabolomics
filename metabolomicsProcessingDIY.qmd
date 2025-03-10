@@ -1,0 +1,84 @@
+---
+title: "metabolomicsProcessingDIY"
+author: "DeniseSl22"
+format: html
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
+
+## Introduction 
+
+In this section of the workflow, we will obtain the metabolomics data and apply filtering options, to create a dataset ready for further statistical and pathway analysis (on Thursday).
+
+## First, we setup the required libraries to get started.
+
+```{r setup, warning=FALSE, message=FALSE}
+
+# check if libraries are already installed > otherwise install it
+if(!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager",repos = "http://cran.us.r-project.org")
+if(!"dplyr" %in% installed.packages()) BiocManager::install("dplyr")
+if(!"stringr" %in% installed.packages()){install.packages("stringr")}
+if(!"rmarkdown" %in% installed.packages()){install.packages("rmarkdown")}
+#load libraries
+library(dplyr)
+library(stringr)
+library(rmarkdown)
+```
+
+## Load the data in R
+
+```{r}
+#Library to download data from online files:
+if(!"downloader" %in% installed.packages()){install.packages("downloader")}
+require(downloader)
+
+filename <- "PETcourseMetabolomicsdata"
+
+# Destination where you want to save the file
+destfile <- paste0(getwd(), '/data/', filename, '.csv')
+
+##Download metadata, extract metabolomics sample IDs, location and disorders.
+if(file.exists(destfile)){print("Data already downloaded")}else{
+fileUrl <- "https://www.ebi.ac.uk/biostudies/files/S-HECA316/u/Hector/MTs/72h_inc_media/HILIC/HeCaToS_LCMS_HILIC_All_Final.xlsx?accessType=DOWNLOAD"
+require(downloader)
+download(fileUrl, destfile, mode = "wb")
+}
+```
+
+## Understand your data
+
+Open the file in Excel itself. Here you will see that there are 3 tabs available.
+
+-   Question: What is the difference between the data captured with these three tabs? Which tab would you select to process further?
+
+## Read the data (DIY)
+
+```{r}
+#Download ‘readxl’ package
+#Load the ‘readxl’ package
+
+#Add data location as variable
+#Read the first tab of the data file
+
+#Make a copy of the data to compare against if needed
+```

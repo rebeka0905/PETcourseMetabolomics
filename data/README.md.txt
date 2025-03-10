@@ -1,0 +1,1 @@
+To avoid cluttering your GitHub repository, having a separate folder for data is a good idea.
