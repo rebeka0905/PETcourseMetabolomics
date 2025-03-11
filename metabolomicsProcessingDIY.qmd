@@ -77,8 +77,95 @@ Open the file in Excel itself. Here you will see that there are 3 tabs available
 #Download ‘readxl’ package
 #Load the ‘readxl’ package
 
-#Add data location as variable
-#Read the first tab of the data file
+#Read the first, second, or third tab of the data file
+header <- read_excel(destfile, 3, range = "A1:Z1", col_names = FALSE)
+metabolomicsData <- read_excel(destfile, 3, skip = 1)  # for third tab, skipping first row
+colnames(metabolomicsData)[1:4] <- header[1:4] # renaming the first 4 columns, since we had double headers.
 
 #Make a copy of the data to compare against if needed
+metabolomicsDataCopy <- metabolomicsData
+```
+
+## Exploring the data
+
+Click on the dataframe name you used to load the metabolomics data itself in R.
+
+-   Question: Do you see the same data as in EXCEL?
+
+## Starting analysis
+
+First, we will visualize the data in a heatmap:
+
+```{r}
+# Install the required package
+if(!"heatmaply" %in% installed.packages()){install.packages("heatmaply")}
+library("heatmaply")
+
+# Make sure all data is read as a number
+metabolomicsData <- data.frame(metabolomicsData[,1:5], lapply(metabolomicsData[,6:length(metabolomicsData)],as.numeric))
+
+# Visualize this information in a heatmap (unscaled)
+heatmaply::heatmaply(metabolomicsData[,6:length(metabolomicsData)], grid_gap = 1, colors = heat.colors(10), showticklabels = c(T, F))
+```
+
+-   Question: which metabolite is causing issues with the heatmap visualization?
+
+Second try of heatmap visualizations, now with scaling:
+
+```{r}
+# Visualize this information in a heatmap (scaled)
+heatmaply::heatmaply(metabolomicsData[,6:length(metabolomicsData)], scale = "column", grid_gap = 1, colors = heat.colors(10), showticklabels = c(T, F))
+
+# Visualize this information in a heatmap (normalized)
+heatmaply::heatmaply(normalize(metabolomicsData[,6:length(metabolomicsData)], grid_gap = 1, colors = heat.colors(10), showticklabels = c(T, F)))
+```
+
+-   Question: what is the difference between these three different visualizations?
+
+Second, we will compare the effect of one of the chemical compounds, called 'Daunorubicin'. Filter the right column to find the data you need (add this on the '...' after the dollarsign '\$'.
+
+```{r}
+#keep rows for only one compound
+danuorubicin<- metabolomicsData[(metabolomicsData$Compound=="...") , ]
+```
+
+We now have three measurements per condition ('Therapeutic' and 'Toxic'), and one blank sample (which has already been used for normalization. We will first transpose the dataframe, to work with it with some more ease. We will now calculate the average value per group, to find any relevant metabolites for pathway analysis.
+
+```{r}
+## Transpose data
+danuorubicinTransposed <- rbind(data.frame(t(danuorubicin[1:4])), data.frame(t(sapply(danuorubicin[6:ncol(danuorubicin)], as.numeric))))
+
+if(!"dplyr" %in% installed.packages()){install.packages("dplyr")}
+library(dplyr)
+danuorubicinTransposed <- danuorubicinTransposed %>%
+   mutate_all(as.numeric)
+
+##calculate logFC for 2 groups (CD vs control, UC vs control), ignoring missing values (NAs) when calculating the mean.  
+therapy = apply(danuorubicinTransposed[5:nrow(danuorubicinTransposed),1:3], 1, mean, na.rm=TRUE)
+toxic = apply(danuorubicinTransposed[5:nrow(danuorubicinTransposed),4:6], 1, mean, na.rm=TRUE)
+
+# We calculate the Fold Chang over the groups by dividing the treatment group over the control group:
+foldchange_treatment <- data.frame(toxic /therapy)
+
+chebiIDs <- "CHEBI:"
+
+##ADD ChEBI IDs column at start, add fold change columns.
+mSet_AnalysisReady <- cbind(colnames(metabolomicsDataCopy[6:ncol(metabolomicsDataCopy)]), foldchange_treatment)
+
+mSet_AnalysisReady[1] <- as.data.frame(apply(mSet_AnalysisReady[1], 2, function(x) paste0(chebiIDs, x)))
+
+##Rename first column and second column
+colnames(mSet_AnalysisReady)[1] <- "ChEBI_ID"
+colnames(mSet_AnalysisReady)[2] <- "FoldChange"
+```
+
+## Export the data
+
+```{r}
+compoundName = "Daunorubicin"
+
+##Save the data file
+nameDataFile <- paste0("outputdata_", compoundName ,".csv")
+write.table(mSet_AnalysisReady, nameDataFile, sep =",", row.names = FALSE)
+
 ```
