@@ -1,6 +1,7 @@
 ---
 title: "metabolomicsProcessingDIY"
-author: "DeniseSl22"
+author: "Denisel22"
+author: "Rebeka"
 format: html
 editor: visual
 ---
@@ -26,7 +27,7 @@ You can add options to executable code like this
 
 The `echo: false` option disables the printing of code (only output is displayed).
 
-## Introduction 
+## Introduction
 
 In this section of the workflow, we will obtain the metabolomics data and apply filtering options, to create a dataset ready for further statistical and pathway analysis (on Thursday).
 
