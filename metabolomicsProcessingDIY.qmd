@@ -169,3 +169,9 @@ nameDataFile <- paste0("outputdata_", compoundName ,".csv")
 write.table(mSet_AnalysisReady, nameDataFile, sep =",", row.names = FALSE)
 
 ```
+
+-   Question: Open the data in Excel, to see what it looks like. Is it the same as in R?
+
+## Cytoscape
+
+We will now visualize the data in Cytoscape; manually at first.
